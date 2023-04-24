@@ -10,6 +10,7 @@ import axios from 'axios';
 import { PentahoArtifact } from 'react-pentaho-renderer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { format } from "date-fns"
 
 const table = [{
     name: "Billing Worksheet",
@@ -62,7 +63,7 @@ export default function Report1(props) {
 
     const notify = () => toast("!!For the futher details contact this Email:prowesstics@gmail.com ");
 
-    const [showContainers, setShowContainers] = useState({});
+   
     const [reportDesign, setReportDesign] = useState(null);
 
     const [reportData, setReportData] = useState(null);
@@ -75,7 +76,8 @@ export default function Report1(props) {
 
     console.log("Report", reportDesign);
 
-
+    const [showContainers, setShowContainers] = useState({});
+    
     const handleNameClick = (name) => {
         const firstName = name.split(' ')[0].toLowerCase();
         console.log("Name", firstName);
@@ -91,7 +93,7 @@ export default function Report1(props) {
     const [showContainer1, setShowContainer1] = useState(false);
 
     const handleButtonClick1 = () => {
-        setShowContainer1(!showContainer1);
+        setShowContainer1(showContainer1);
     };
 
 
@@ -275,7 +277,7 @@ export default function Report1(props) {
 
 
 
-    
+
     // const handleDownloads = async () => {
 
     //     try {
@@ -299,27 +301,62 @@ export default function Report1(props) {
     //         console.error(error);
     //     }
     //   };
-      const handleDownloads = async () => {
-        try {
-          const response = await axios.get('http://localhost:4000/reports', { responseType: 'arraybuffer' });
-          console.log("Response",response);
-          const contentType = response.headers['content-type'];
-          if (contentType === 'application/pdf') {
-            const file = new Blob([response.data], { type: 'application/pdf' });
-            const fileURL = URL.createObjectURL(file);
-            window.open(fileURL);
 
-          } else if (contentType === 'application/octet-stream') {
-            const data = response.data;
-            console.log("res",data);
-            // Handle the buffer response data here
-          } else {
-            // Handle other content types here
-          }
+
+    //   const handleDownloads = async () => {
+    //     try {
+    //       const response = await axios.get('http://localhost:4000/reports', { responseType: 'arraybuffer' });
+    //       console.log("Response",response);
+    //       const contentType = response.headers['content-type'];
+    //       if (contentType === 'application/pdf') {
+    //         const file = new Blob([response.data], { type: 'application/pdf' });
+    //         const fileURL = URL.createObjectURL(file);
+    //         window.open(fileURL);
+
+    //       } else if (contentType === 'application/octet-stream') {
+    //         const data = response.data;
+    //         console.log("res",data);
+    //         // Handle the buffer response data here
+    //       } else {
+    //         // Handle other content types here
+    //       }
+    //     } catch (error) {
+    //       // Handle the error here
+    //     }
+    //   };
+
+
+    const [FromDate, setFromDate] = useState(format(new Date("2023-02-01"), 'yyyy-MM-dd'));
+
+
+    const [ToDate, setToDate] = useState(format(new Date("2023-06-06"), 'yyyy-MM-dd'));
+
+
+    const handleDownloads = async () => {
+        try {
+            const response = await axios.post('http://localhost:4000/reports',
+                {
+                    fromDate: FromDate , // replace with your fromDate variable
+                    toDate: ToDate,
+                }, { responseType: 'arraybuffer' });
+            console.log("Response", response);
+            const contentType = response.headers['content-type'];
+            if (contentType === 'application/pdf') {
+                const file = new Blob([response.data], { type: 'application/pdf' });
+                const fileURL = URL.createObjectURL(file);
+                window.open(fileURL);
+
+            } else if (contentType === 'application/octet-stream') {
+                const data = response.data;
+                console.log("res", data);
+                // Handle the buffer response data here
+            } else {
+                // Handle other content types here
+            }
         } catch (error) {
-          // Handle the error here
+            // Handle the error here
         }
-      };
+    };
 
 
     return (
@@ -444,7 +481,7 @@ export default function Report1(props) {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <input type="date" placeholder="From" />
+                                        <input type="date" value={FromDate}  onChange={e => setFromDate(e.target.value)} placeholder="From" />
                                     </Col>
                                 </Row>
                             </Col>
@@ -456,7 +493,7 @@ export default function Report1(props) {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <input type="date" placeholder="From" />
+                                        <input type="date" value={ToDate} onChange={e => setToDate(e.target.value)} placeholder="To" />
                                     </Col>
                                 </Row>
                             </Col>
