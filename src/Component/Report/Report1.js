@@ -87,7 +87,7 @@ export default function Report1(props) {
 
 
     const handleDownloads = () => {
-        axios.post('http://localhost:4000/reports', {
+        axios.post('http://localhost:4000/report1', {
             fromDate: FromDate, // replace with your fromDate variable
             toDate: ToDate,
         }, {
