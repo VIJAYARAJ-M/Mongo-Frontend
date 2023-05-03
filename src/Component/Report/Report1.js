@@ -11,6 +11,7 @@ import { PentahoArtifact } from 'react-pentaho-renderer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns"
+import Modal from "../Model/Model";
 
 const table = [{
     name: "Billing Worksheet",
@@ -66,6 +67,42 @@ export default function Report1(props) {
 
     const [showContainers, setShowContainers] = useState({});
 
+    const [ShowModel, setShowModal] = useState(false)
+
+    const [showContainer1, setShowContainer1] = useState(false);
+
+    const [FromDate, setFromDate] = useState(format(new Date("2023-02-01"), 'yyyy-MM-dd'));
+
+
+    const [ToDate, setToDate] = useState(format(new Date("2023-02-28"), 'yyyy-MM-dd'));
+
+
+    const handleNoClick = () => {
+        // Do something when user clicks "No"
+        setShowModal(false);
+    };
+
+
+    const handleYesClick = () => {
+        fetch("http://localhost:4000/submit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ choice: "yes" })
+        })
+            .then(response => response.json())
+            .then(data =>
+                toast(data.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                })
+            )
+            .catch(error => console.log(error));
+        setShowModal(false);
+    };
+
+
+
     const handleNameClick = (name) => {
         const firstName = name.split(' ')[0].toLowerCase();
         console.log("Name", firstName);
@@ -73,17 +110,14 @@ export default function Report1(props) {
     };
 
 
-    const [showContainer1, setShowContainer1] = useState(false);
+
 
     const handleButtonClick1 = () => {
         setShowContainer1(showContainer1);
     };
 
 
-    const [FromDate, setFromDate] = useState(format(new Date("2023-02-01"), 'yyyy-MM-dd'));
 
-
-    const [ToDate, setToDate] = useState(format(new Date("2023-06-06"), 'yyyy-MM-dd'));
 
 
     const handleDownloads = () => {
@@ -101,15 +135,17 @@ export default function Report1(props) {
                 const fileURL = URL.createObjectURL(file);
                 window.open(fileURL);
                 toast('PDf download successfully', {
-                    position: toast.POSITION.TOP_RIGHT
+                    position: toast.POSITION.TOP_CENTER
                 });
                 //setResponse("");
                 //setError("");
             } else {
                 console.log(response.data.message);
-                toast('This report have more than 5 pages, so pdf sended in our mail', {
-                    position: toast.POSITION.TOP_RIGHT
-                });
+                // toast('This report have more than 5 pages, so pdf sended in our mail', {
+                //     position: toast.POSITION.TOP_CENTER
+
+                // });
+                setShowModal(true)
                 //setError("");
             }
 
@@ -401,6 +437,27 @@ export default function Report1(props) {
                     {showContainers.expenses && <div>This is the container for Ajai.</div>}
                 </Col>
             </Row>
+
+
+            {/*         
+          <button onClick={handleButtonClick}>Show Popup</button> */}
+
+            <Row>
+                <Col className="d-flex justify-content-center">
+
+                    {ShowModel && (
+                        <Modal
+                            message="This report have more than 5 pages, So sent pdf to your mail"
+                            onYesClick={handleYesClick}
+                            onNoClick={handleNoClick}
+                        />
+                    )}
+
+
+
+                </Col>
+            </Row>
+
 
         </div>
     )
